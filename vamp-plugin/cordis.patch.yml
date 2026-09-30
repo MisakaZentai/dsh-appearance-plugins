@@ -1,0 +1,5 @@
+# vamp: one host row. The package's `dsh.client` section is what puts
+# ./client.js into the browser boot graph; this row is the host half.
+- insert:
+    - id: vamp
+      name: '@local/dsh-appearance-vamp'

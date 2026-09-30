@@ -1,0 +1,5 @@
+# kuroneko-theme: one host row. The package's `dsh.client` section is what puts
+# ./client.js into the browser boot graph; this row is the host half.
+- insert:
+    - id: kuroneko-theme
+      name: '@local/dsh-appearance-kuroneko-theme'

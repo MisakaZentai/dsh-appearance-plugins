@@ -1,6 +1,6 @@
 # DSH 外观插件集 · DeepSeek Harness Appearance Plugins
 
-给 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)(DSH)Web GUI 用的动态 Cordis 外观插件:换主题、养吉祥物、飘花瓣、状态面板……本仓库**只分发代码,不含任何第三方图片素材**——吉祥物/头像图一律由使用者自备。
+给 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)(DSH)Web GUI 用的外观插件 bundle:换主题、养吉祥物、飘花瓣、状态面板……本仓库**只分发代码,不含任何第三方图片素材**——吉祥物/头像图一律由使用者自备。
 
 | 目录 | 效果 | 素材情况 |
 | --- | --- | --- |
@@ -12,24 +12,53 @@
 
 外观插件只负责"皮",人格另由 agent preset 提供——见配套仓库 **[dsh-persona-presets](https://github.com/MisakaZentai/dsh-persona-presets)**(黑猫 / 猫娘 / 吸血鬼三个人格,与上方插件一一对应)。两者可任意组合:比如「黑猫模式」preset + 黑猫主题插件,或者把猫娘皮肤换到黑猫人格上(笑)。
 
-## 安装 / 挂载
+## 版本要求
 
-动态插件只活在当前进程里,进程重启即消失;源码在本仓库,随时一键复活:
+本仓库自 2026-09-30 起使用 **DSH 0.2.0 及以后**的插件 bundle 格式。
 
-1. 打开 DSH Web GUI,使用带 `cordis_*` 工具集的会话(如「创造模式」preset);
-2. 用 `cordis_define` 定义插件:
-   - `code.host` = 对应目录 `host.js` 的全部内容(kuroneko 没有 Host 半区,留空);
-   - `code.client` = 对应目录 `client.js` 的全部内容;
-3. `cordis_run` 激活。首次激活客户端插件需要在本页面允许授权;
-4. 进程重启后重复以上步骤即可(把源码重新贴回),或直接对助手说「挂载 XX 插件」。
+旧版依赖 `cordis_define` / `cordis_run` 动态插件工具集把源码粘进会话——**该工具集在 0.2.0 已被移除**(只剩 `cordis_inspect_list` / `cordis_inspect_query`),因此旧安装方式不再可用。现在每个目录都是一个可直接安装的 bundle,重启后依然在。
+
+## 安装
+
+在 DSH 0.2.0+ 上,把想要的插件目录作为 bundle 装进 profile。三选一:
+
+**方式 A · 让助手装(推荐)** — 在「创造模式」等带 `plugin_manager` 的会话里说:
+
+> 用 plugin_manager 的 install_bundle 安装 `C:\path\to\dsh-appearance-plugins\kuroneko-theme-plugin`
+
+**方式 B · Web 侧边栏** — 打开侧边栏的 **Plugins** 页面安装本地目录。
+
+**方式 C · 命令行**
+
+```powershell
+# <profile> 换成你的 profile 名(web / desktop / …)
+dsh plugin --profile <profile> add C:\path\to\dsh-appearance-plugins\kuroneko-theme-plugin
+```
+
+装完重启 DSH(或刷新页面)即可看到效果。客户端半区加载时,页面会请求一次授权。
+
+## 目录结构
+
+```
+kuroneko-theme-plugin/
+├── package.json       # bundle 清单:dsh.bundle.patch + dsh.client
+├── cordis.patch.yml   # insert 一个宿主行,行名就是包名
+├── index.js           # 宿主半区(纯客户端视觉插件,这里不做任何事)
+└── client.js          # 客户端半区:全部界面都在这里
+```
+
+`dsh.client` 段是客户端半区进入浏览器 boot graph 的关键;`index.js` 只是让宿主那一行有东西可挂。
 
 ## 自定义吉祥物 / 头像
 
-插件不带图。想用自己的图,在设置页/面板输入框里填(三选一):
+插件不带图。想用自己的图,在设置页/面板输入框里填(二选一):
 
 - **直链 URL**:任何你能访问的 `https://...` 图片;
-- **`data:` URI**:本地图片转 base64 后粘贴;
-- **本机文件路径**:由插件 Host 半区读盘转码(DSH 进程需有该路径的读权限;vamp 目录附带 `crop-gif.ps1`,横版 GIF 可先裁成正方形)。
+- **`data:` URI**:本地图片转 base64 后粘贴。
+
+> 0.2.0 移除了 `cordis_define`,顺带失去了「填本机文件路径、由 Host 半区读盘转码」这条通道——bundle 形态的客户端插件没有通用的宿主调用桥。本机图片请先转成 `data:` URI(一张图一次即可)。
+>
+> `vamp-plugin/crop-gif.ps1` 仍可用于把横版 GIF 裁成正方形。
 
 请只使用你拥有使用权的图片。
 
